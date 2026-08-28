@@ -41,3 +41,7 @@ python main.py
 2. 路由器需关闭「AP 隔离」功能
 3. 手机需允许 APP 局域网网络权限
 4. 手机需保持 APP 后台运行
+
+#### 安装
+
+[安装包下载](https://my.feishu.cn/drive/folder/SryZf0hq8lP5dadcsOYcHVpLnGf)
