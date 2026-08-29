@@ -44,4 +44,4 @@ python main.py
 
 ## 安装
 
-[安装包下载](https://my.feishu.cn/drive/folder/SryZf0hq8lP5dadcsOYcHVpLnGf)
+右侧下载“发行版”
