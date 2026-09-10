@@ -3,8 +3,10 @@ import flet as ft
 from typing import Optional
 
 from .scanner import Device
+from .clipboard_sync import ClipboardSyncManager
 from .ui.home_page import HomePage, Colors
 from .ui.web_page import WebViewWindow
+from .ui.clipboard_toast import ClipboardToast
 from .utils import get_asset_path
 
 # 应用图标（所有系统窗口共用；Windows 下 Flet 窗口图标必须是 .ico）
@@ -18,6 +20,8 @@ class App:
         self.page: Optional[ft.Page] = None
         self._home_page: Optional[HomePage] = None
         self._web_view: Optional[WebViewWindow] = None
+        self._clipboard_sync: Optional[ClipboardSyncManager] = None
+        self._toast: Optional[ClipboardToast] = None
 
     def main(self, page: ft.Page):
         """应用主入口"""
@@ -39,6 +43,14 @@ class App:
         # 创建WebView管理器
         self._web_view = WebViewWindow()
 
+        # 创建浮窗通知组件
+        self._toast = ClipboardToast(page)
+
+        # 创建剪贴板同步管理器（传入浮窗回调）
+        self._clipboard_sync = ClipboardSyncManager(
+            on_image_received=lambda name, img: self._toast.show_image(f"收到{name}发送的图片", img),
+        )
+
         # 创建首页
         self._home_page = HomePage(
             on_connect_device=self._on_connect_device,
@@ -56,8 +68,11 @@ class App:
             on_close=self._on_webview_closed
         )
         if opened:
-            # 窗口真正启动：该设备按钮切换为“已连接”
+            # 窗口真正启动：该设备按钮切换为"已连接"
             self._home_page.set_device_connected(device)
+            # 启动该设备的剪贴板同步
+            if self._clipboard_sync:
+                self._clipboard_sync.start_device(device.url, device.device_name)
         else:
             # 防御：窗口已存在时直接聚焦
             self._web_view.focus(device)
@@ -68,8 +83,12 @@ class App:
 
     def _on_webview_closed(self, device: Device):
         """WebView窗口关闭回调（device为本次关闭的窗口对应设备）"""
+        # 停止该设备的剪贴板同步
+        if self._clipboard_sync:
+            self._clipboard_sync.stop_device(device.url)
+
         if self._home_page:
-            # 恢复该设备的“一键连接”按钮
+            # 恢复该设备的"一键连接"按钮
             self._home_page.set_device_disconnected(device)
             if not self._web_view.has_open_windows():
                 # 全部窗口已关闭：回到首页状态并恢复自动扫描

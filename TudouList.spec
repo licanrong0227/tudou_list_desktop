@@ -22,7 +22,7 @@ exe = EXE(
     a.binaries,
     a.datas,
     [],
-    name='TudouList',
+    name='TudouList_V1.1.0',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
@@ -35,6 +35,5 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    version='C:/Users/90606/AppData/Local/Temp/439f7e97-c98b-469e-a415-a2c859aa1e74',
     icon=['assets/app_icon.ico'],
 )
